@@ -7,11 +7,6 @@ MqttManager::MqttManager(ConfigurationManager& configManager, Logger& logger):
     client(espClient)
     {}
 
-void MqttManager::setLEDs(LEDHandler* normalLED, LEDHandler* errorLED) {
-  normalLED = normalLED;
-  errorLED = errorLED;
-}
-
 void MqttManager::begin(){
     //topicPrefix   = String(IoTclassName)+"/"+String(_configManager.getHostname());
     topicPrefix   = String(IoTclassName)+"/"+String(_configManager.getValue("wifi.hostname", ""));
@@ -34,10 +29,11 @@ void  MqttManager::loop(){
 }
 
 
-
 bool MqttManager::publish(String topic, String value) {
   if (client.connected()){
+    reportStep(1);
     client.publish((topicPrefix +"/"+ topic).c_str(), value.c_str());
+    reportStep(2);
     return true;
   }
   return false;
@@ -49,34 +45,6 @@ bool MqttManager::publish(String topic, String value) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-// Helper functions
-void MqttManager::normalLEDon() {
-  if (normalLED != nullptr) {
-    normalLED->on(); 
-  }
-}
-void MqttManager::normalLEDoff() {
-  if (normalLED != nullptr) {
-    normalLED->off(); 
-  }
-}
-void MqttManager::errorLEDMode(LEDMode mode) {
-  if (errorLED != nullptr) {
-    errorLED->setMode(mode); 
-  }
-}
 
 
 void MqttManager::addReportStepHook(std::function<void(int)> func) {
