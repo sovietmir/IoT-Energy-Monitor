@@ -26,7 +26,7 @@ void HTTPServerManager::begin() {
     _logger.log("HTTP server started.\n");
 }
 
-void HTTPServerManager::handleClient() {
+void HTTPServerManager::loop() {
     server.handleClient();
     webSocket.loop();
 }
@@ -59,7 +59,7 @@ void HTTPServerManager::handleFileRequest() {
 /**
  *  Allows easy integration of additional endpoints.
  *
- * @param uri A URI od endpoint 
+ * @param uri A URI of an endpoint 
  * @param method HTTP method the ewquest is made, for example its value can be HTTP_GET, HTTP_POST, etc.
  * @param handler Lambda function that should accept argument server, this is the way to get access to private attribute server of this class, from outside.
  * @param uploadHandler [optional] Lambda function as the above, used for file uploads 

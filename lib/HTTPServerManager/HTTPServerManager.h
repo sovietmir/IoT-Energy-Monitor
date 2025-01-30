@@ -10,9 +10,8 @@ class HTTPServerManager {
 public:
     HTTPServerManager(Logger& logger);
 
-    void begin();
-    // Handle HTTP server requests and WebSocket events
-    void handleClient();
+    void begin();    
+    void loop(); // Handle HTTP server requests and WebSocket events
 
     // Register a custom route
     void registerPage(const String& uri, HTTPMethod method, std::function<void(ESP8266WebServer&)> handler, std::function<void(ESP8266WebServer&)> uploadHandler = nullptr);
