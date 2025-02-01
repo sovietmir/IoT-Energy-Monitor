@@ -54,7 +54,7 @@ public:
 
 private:
     HTTPServerManager& _serverManager; ///< Reference to the server manager.
-    Logger* _logger; ///< Reference to the logger.
+    Logger* _logger; ///< Pointer to the logger.
 
     std::vector<std::function<void(int)>> _reportStepsHooks; ///< List of OTA update step hooks.
     
