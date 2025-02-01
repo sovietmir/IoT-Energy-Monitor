@@ -33,7 +33,7 @@ public:
      * @brief Constructs a WiFiManager object.
      * 
      * @param serverManager Reference to the HTTPServerManager instance.
-     * @param logger Reference to the Logger instance.
+     * @param logger Pointer to the Logger instance.
      */
     WiFiManager(HTTPServerManager& serverManager, Logger* logger = nullptr);
 
