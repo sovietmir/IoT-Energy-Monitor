@@ -1,46 +1,45 @@
 #include "AHT10Monitor.h"
 
-AHT10Monitor::AHT10Monitor(HTTPServerManager& serverManager, Logger& logger) 
+AHT10Monitor::AHT10Monitor(HTTPServerManager& serverManager, Logger* logger) 
         : _serverManager(serverManager),
           _logger(logger), 
-          myAHT10(AHT10_ADDRESS_0X38)
+          _AHT10(AHT10_ADDRESS_0X38)
           {}
 
 void AHT10Monitor::begin() {
-    myAHT10.begin(SDA_PIN, SCL_PIN);
+    _AHT10.begin(SDA_PIN, SCL_PIN);
 }
 
 void AHT10Monitor::loop(){
-    currentTime = millis();
-    if (currentTime - lastTime > periodicity) {
-        lastTime = currentTime;
+    long currentTime = millis();
+    if (currentTime - _lastTime > _periodicity) {
+        _lastTime = currentTime;
         reportStep(1); 
-        lastMetrics = read();
-        logMetrics(lastMetrics);
-        reportMetrics(lastMetrics);
-        broadcastMetrics(lastMetrics);
+        _lastMetrics = read();
+        logMetrics(_lastMetrics);
+        reportMetrics(_lastMetrics);
+        broadcastMetrics(_lastMetrics);
         reportStep(2);        
     }    
 }
 
 aht10Metrics AHT10Monitor::read(){
     aht10Metrics toret;
-    toret.time = String(DateTime.format(DateFormatter::SIMPLE).c_str());
+    toret.time = Logger::timeToString();
 
-    toret.temperature = myAHT10.readTemperature();
-    toret.humidity = myAHT10.readHumidity();
+    toret.temperature = _AHT10.readTemperature();
+    toret.humidity = _AHT10.readHumidity();
     return toret;
 }
 
-
 void AHT10Monitor::logMetrics(aht10Metrics& metrics){
-    _logger.log("Time: "+  metrics.time+"\n");
-    _logger.log("\tTemperature: "+  String(metrics.temperature, 2)+" +-0.3C\n");
-    _logger.log("\tHumidity   : "+  String(metrics.humidity, 2)+" +-2%\n");
+    if (_logger != nullptr) {
+      _logger->log("Time: "+  metrics.time+"\n");
+      _logger->log("\tTemperature: "+  String(metrics.temperature, 2)+" +-0.3C\n");
+      _logger->log("\tHumidity   : "+  String(metrics.humidity, 2)+" +-2%\n");
+    }
 }
 
-
-// Function to serialize the structure into JSON
 String  AHT10Monitor::serializeMetrics(const aht10Metrics& metrics) {
     JsonDocument doc; // Create a JSON document to hold the data
     doc["time"] = metrics.time;
@@ -52,29 +51,36 @@ String  AHT10Monitor::serializeMetrics(const aht10Metrics& metrics) {
     return jsonString;
 }
 
-
 void AHT10Monitor::addReportStepHook(std::function<void(int)> func) {
-  reportStepsHooks.push_back(func);
+  _reportStepsHooks.push_back(func);
 }
+
 void AHT10Monitor::reportStep(int step){
-  for (auto& hook : reportStepsHooks) {
+  for (auto& hook : _reportStepsHooks) {
     if (hook) {
         hook(step);
     }
   }
 }
+
 void AHT10Monitor::addReportMetricsHook(std::function<void(aht10Metrics&)> func) {
-  reportMetricsHooks.push_back(func);
+  _reportMetricsHooks.push_back(func);
 }
+
 void AHT10Monitor::reportMetrics(aht10Metrics& metric){
-  for (auto& hook : reportMetricsHooks) {
+  for (auto& hook : _reportMetricsHooks) {
     if (hook) {
         hook(metric);
     }
   }
 }
 
-
+void AHT10Monitor::registerEndpoints() {
+    _serverManager.registerPage("/api/getLastMetricsAHT10", HTTP_GET, [this](ESP8266WebServer& server) {
+        server.send(200, "application/json", serializeMetrics(_lastMetrics));
+    });
+    
+}
 
 void AHT10Monitor::broadcastMetrics(aht10Metrics& metrics){
     _serverManager.broadcastWebSocketMessage(serializeMetrics(metrics));
