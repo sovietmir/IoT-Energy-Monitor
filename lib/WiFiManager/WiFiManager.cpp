@@ -18,7 +18,7 @@ void WiFiManager::begin() {
   }
   else { // Connected to WIFI, do DateTime 
     _operationMode=NORMAL;
-    //if (_logger != nullptr) _logger->logf("Date Now is %s\n", _logger->timeToString().c_str());
+    //if (_logger != nullptr) _logger->logf("Date Now is %s\n", Logger::timeToString().c_str());
   }
 
   registerEndpoints();

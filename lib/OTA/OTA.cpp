@@ -33,7 +33,7 @@ void OTA::registerEndpoints() {
     
     _serverManager.registerPage("/api/reboot", HTTP_GET, [this](ESP8266WebServer& server) {
         if (_logger != nullptr) _logger->log("URI: /api/");
-        server.send(200, "application/json", "{\"status\": 1, \"message\": \"Microcontroller shall reboot in half a second.\"}"); 
+        server.send(200, "application/json", "{\"status\": \"ok\", \"message\": \"Microcontroller shall reboot in half a second.\"}"); 
         delay(500);
         ESP.restart();
     });
@@ -90,7 +90,7 @@ void OTA::handleFirmwareUpload(ESP8266WebServer& server) {
             reportStep(2);
             reportStep(-3);
             Update.printError(Serial);
-            server.send(500, "application/json", "{\"status\": -1, \"error\":\"Firmware update failed to start.\"}");
+            server.send(500, "application/json", "{\"status\": \"nok1\", \"error\":\"Firmware update failed to start.\"}");
             if (_logger != nullptr) _logger->log("Firmware update failed to start.\n");
             return;
         }
@@ -102,21 +102,21 @@ void OTA::handleFirmwareUpload(ESP8266WebServer& server) {
         reportStep(2);
     } else if (upload.status == UPLOAD_FILE_END) {
         if (Update.end(true)) { // End OTA process
-            server.send(200, "application/json", "{\"status\": -1, \"message\":\"Firmware updated successfully. Rebooting...\"}");
+            server.send(200, "application/json", "{\"status\": \"ok\", \"message\":\"Firmware updated successfully. Rebooting...\"}");
             if (_logger != nullptr) _logger->log("Firmware update successful. Rebooting...\n");
             delay(500);
             ESP.restart();
         } else {
             reportStep(-3);
             Update.printError(Serial);
-            server.send(500, "application/json", "{\"status\": -2, \"error\":\"Firmware update failed.\"}");
+            server.send(500, "application/json", "{\"status\": \"nok2\", \"error\":\"Firmware update failed.\"}");
             if (_logger != nullptr) _logger->log("Firmware update failed.\\n");
         }
     } else if (upload.status == UPLOAD_FILE_ABORTED) {
         reportStep(2);
         reportStep(-3);
         Update.end();
-        server.send(500, "application/json", "{\"status\": -3, \"error\":\"Firmware update aborted.\"}");
+        server.send(500, "application/json", "{\"status\": \"nok3\", \"error\":\"Firmware update aborted.\"}");
         if (_logger != nullptr) _logger->log("Firmware update aborted.\\n");
     }
 }
@@ -139,7 +139,7 @@ void OTA::handleFileUpload(ESP8266WebServer& server) {
         String path = directory  + "/" + upload.filename; // Add subdirectory here
         file = LittleFS.open(path, "w");
         if (!file) {
-            server.send(500, "application/json", "{\"status\": -1, \"error\":\"Failed to open file for writing.\"}");
+            server.send(500, "application/json", "{\"status\": \"nok1\", \"error\":\"Failed to open file for writing.\"}");
             if (_logger != nullptr) _logger->log(" Failed to open file '"+path+"' for writing.\n");
             reportStep(2);
             reportStep(-3);
@@ -156,10 +156,10 @@ void OTA::handleFileUpload(ESP8266WebServer& server) {
     } else if (upload.status == UPLOAD_FILE_END) {
         if (file) {
             file.close();            
-            server.send(200, "application/json", "{\"status\": 1, \"message\":\"File uploaded successfully.\"}");
+            server.send(200, "application/json", "{\"status\": \"ok\", \"message\":\"File uploaded successfully.\"}");
             if (_logger != nullptr) _logger->log("File upload successful.\n");
         } else {
-            server.send(500, "application/json", "{\"status\": -2, \"error\":\"Failed to save file.\"}");
+            server.send(500, "application/json", "{\"status\": \"nok2\", \"error\":\"Failed to save file.\"}");
             if (_logger != nullptr) _logger->log("Failed to save file.\n");
             reportStep(-2);
         }
@@ -169,7 +169,7 @@ void OTA::handleFileUpload(ESP8266WebServer& server) {
             file.close();
             LittleFS.remove(upload.filename); // Clean up
         }
-        server.send(500, "application/json", "{\"status\": -3, \"error\":\"File upload aborted.\"}");
+        server.send(500, "application/json", "{\"status\": \"nok3\", \"error\":\"File upload aborted.\"}");
         if (_logger != nullptr) _logger->log("File upload aborted.\n");
         reportStep(2);
         reportStep(-1);
@@ -230,7 +230,7 @@ void OTA::handleDownloadRequest(ESP8266WebServer& server) {
         server.streamFile(file, "application/octet-stream");
         file.close();
     } else {
-        server.send(404, "application/json", "{\"status\": -1, \"error\":\"File not found\"}");
+        server.send(404, "application/json", "{\"status\": \"nok1\", \"error\":\"File not found\"}");
     }
     if (_logger != nullptr) _logger->log("\n");
    
@@ -245,12 +245,12 @@ void OTA::handleDeleteRequest(ESP8266WebServer& server) {
     if (_logger != nullptr) _logger->log("handleDeleteRequest: "+path);
     if (LittleFS.exists(path)) { // Check if the file exists.
         if (LittleFS.remove(path)) { // Delete the file.
-            server.send(200, "application/json", "{\"status\": 1, \"message\":\"File deleted successfully\"}");
+            server.send(200, "application/json", "{\"status\": \"ok\", \"message\":\"File deleted successfully\"}");
         } else {
-            server.send(500, "application/json", "{\"status\": -1, \"error\":\"Failed to delete file\"}");
+            server.send(500, "application/json", "{\"status\": \"nok1\", \"error\":\"Failed to delete file\"}");
         }            
     } else {
-        server.send(404, "application/json", "{\"status\": -2, \"error\":\"File not found\"}");
+        server.send(404, "application/json", "{\"status\": \"nok2\", \"error\":\"File not found\"}");
     }
     if (_logger != nullptr) _logger->log("\n");
    
@@ -267,7 +267,7 @@ void OTA::handleDeleteRequest(ESP8266WebServer& server) {
  */
 void OTA::handleAddDirectoryRequest(ESP8266WebServer& server) {
     if (!server.hasArg("plain")) {
-        server.send(400, "application/json", "{\"status\": -1, \"error\":\"Bad Request\"}");
+        server.send(400, "application/json", "{\"status\": \"nok1\", \"error\":\"Bad Request\"}");
         return;
     }
     
@@ -275,7 +275,7 @@ void OTA::handleAddDirectoryRequest(ESP8266WebServer& server) {
     JsonDocument params;
     DeserializationError error = deserializeJson(params, json);
     if(error) {
-        server.send(500, "application/json", "{\"status\": -2, \"error\":\"Failed to deserializeJson the request data\"}");
+        server.send(500, "application/json", "{\"status\": \"nok2\", \"error\":\"Failed to deserializeJson the request data\"}");
         return;
     }
 
@@ -285,10 +285,10 @@ void OTA::handleAddDirectoryRequest(ESP8266WebServer& server) {
     if (_logger != nullptr) _logger->log("handleAddDirectoryRequest '"+fullPath+"': ");
 
     if (LittleFS.mkdir(fullPath)) {
-        server.send(200, "application/json", "{\"status\": 1, \"message\":\"Directory created successfully\"}");
+        server.send(200, "application/json", "{\"status\": \"ok\", \"message\":\"Directory created successfully\"}");
         if (_logger != nullptr) _logger->log("ok\n");
     } else {
-        server.send(500, "application/json", "{\"status\": -3, \"error\":\"Failed to create directory\"}");
+        server.send(500, "application/json", "{\"status\": \"nok3\", \"error\":\"Failed to create directory\"}");
         if (_logger != nullptr) _logger->log("nok\n");
     }
    
