@@ -102,10 +102,15 @@ void ConfigurationManager::registerEndpoints() {
     _serverManager.registerPage("/api/"+String(_prefix)+"/save", HTTP_POST, [this](ESP8266WebServer& server) { handleConfigPost(server); });
 }
 
+void ConfigurationManager::handleGetCurrentConfig(ESP8266WebServer& server) {
+    String configJson = "";
+    serializeJson(getConfig(), configJson);
+    server.send(200, "application/json", configJson);
+}
 
 void ConfigurationManager::handleConfigPost(ESP8266WebServer& server) {
     if (!server.hasArg("plain")) {
-        server.send(400, "application/json", "{\"error\":\"Bad Request\"}");
+        server.send(400, "application/json", "{\"status\": \"nok1\", \"error\":\"Bad Request\"}");
         return;
     }
 
@@ -119,24 +124,18 @@ void ConfigurationManager::handleConfigPost(ESP8266WebServer& server) {
     JsonDocument newConfig;
     DeserializationError error = deserializeJson(newConfig, json);
     if(error) {
-        server.send(500, "application/json", "{\"error\":\"Failed to deserializeJson the request data\"}");
+        server.send(500, "application/json", "{\"status\": \"nok2\", \"error\":\"Failed to deserializeJson the request data\"}");
         return;
     }
     setConfig(newConfig.as<JsonObject>());
 
     if (!saveConfig()) {
-        server.send(500, "application/json", "{\"error\":\"Failed to save configuration\"}");
+        server.send(500, "application/json", "{\"status\": \"nok3\", \"error\":\"Failed to save configuration\"}");
         return;
     }
 
-    server.send(200, "application/json", "{\"status\":\"Configuration saved successfully\"}");
+    server.send(200, "application/json", "{\"status\": \"ok\", \"message\":\"Configuration saved successfully\"}");
     _logger.log("Configuration updated via HTTP POST.\n");
 }
 
 
-void ConfigurationManager::handleGetCurrentConfig(ESP8266WebServer& server) {
-    String configJson = "";
-    serializeJson(getConfig(), configJson);
-
-    server.send(200, "application/json", configJson);
-}

@@ -3,12 +3,12 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 
-HTTPServerManager::HTTPServerManager(Logger& logger)
+HTTPServerManager::HTTPServerManager(Logger* logger)
     : server(80), webSocket(81), _logger(logger) {}
 
 void HTTPServerManager::begin() {
     if (!LittleFS.begin()) {
-        _logger.log("Failed to mount filesystem.\n");
+        if (_logger != nullptr) _logger->log("Failed to mount filesystem.\n");
         return;
     }
 
@@ -23,7 +23,7 @@ void HTTPServerManager::begin() {
 
     // Start the server
     server.begin();
-    _logger.log("HTTP server started.\n");
+    if (_logger != nullptr) _logger->log("HTTP server started.\n");
 }
 
 void HTTPServerManager::loop() {
@@ -32,7 +32,7 @@ void HTTPServerManager::loop() {
 }
 
 /**
- * Handles static files from the file system's directory: public_html/.
+ * @brief Handles static files from the file system's directory: public_html/.
  *
  * @param server Reference to the ESP8266WebServer instance managing the request.
  *               Used to access request parameters and send responses.
@@ -57,7 +57,7 @@ void HTTPServerManager::handleFileRequest() {
 }
 
 /**
- *  Allows easy integration of additional endpoints.
+ * @brief Allows easy integration of additional endpoints.
  *
  * @param uri A URI of an endpoint 
  * @param method HTTP method the ewquest is made, for example its value can be HTTP_GET, HTTP_POST, etc.
@@ -87,6 +87,10 @@ void HTTPServerManager::registerPage(
 
 }
 
+/**
+ * @brief 
+ * @param message 
+*/
 void HTTPServerManager::broadcastWebSocketMessage(const String& message) {
     String mutableMessage = message; // Create a mutable copy of the const String
     webSocket.broadcastTXT(mutableMessage);

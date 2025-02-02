@@ -8,7 +8,7 @@
 
 class HTTPServerManager {
 public:
-    HTTPServerManager(Logger& logger);
+    HTTPServerManager(Logger* logger = nullptr);
 
     void begin();    
     void loop(); // Handle HTTP server requests and WebSocket events
@@ -22,7 +22,7 @@ public:
 private:
     ESP8266WebServer server;
     WebSocketsServer webSocket;
-    Logger& _logger;
+    Logger* _logger;
 
     // Internal method to handle WebSocket events
     void handleWebSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length);

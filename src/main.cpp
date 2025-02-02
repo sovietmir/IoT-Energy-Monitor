@@ -12,44 +12,21 @@
 #include "MainsMonitor.h"
 #include "AHT10Monitor.h"
 
-#include <ESPDateTime.h>
+//ConsoleLogger      logger;
+TelnetLogger         logger;
+HTTPServerManager    httpServerManager(&logger);
+WiFiManager          wifiManager(httpServerManager, &logger);
+OTA                  otaManager(httpServerManager, &logger);
+MqttManager          mqttManager(&logger);
 
-
-//#include <AHT10.h>
-//AHT10 myAHT10(AHT10_ADDRESS_0X38);
-
-
-enum OperationMode {
-    INIT,
-    NORMAL,
-    SETTINGS
-};
-OperationMode operationMode = INIT;
-
-
-
-//ConsoleLogger logger;
-TelnetLogger logger;
-HTTPServerManager httpServerManager(logger);
 ConfigurationManager configManager("/config.json",  "conf", httpServerManager, logger);
 ConfigurationManager defaultManager("/default.json","dflt", httpServerManager, logger);
-WiFiManager wifiManager(configManager, httpServerManager, logger);
-MqttManager mqttManager(configManager, logger);
-OTA otaManager(httpServerManager, logger);
-static LEDHandler normalLED("Normal (green) indicator", logger);
-static LEDHandler errorLED("Error (red) indicator", logger);
-MainsMonitor mainsMonitor(httpServerManager, logger);
-AHT10Monitor aht10Monitor(httpServerManager, logger);
- 
 
 
-
-
-long unsigned currentTime = millis();
-long unsigned lastTimeWifiCheck = 0;
-long unsigned lastTime = 0;
-
-
+static LEDHandler    normalLED("Normal (green) indicator", &logger);
+static LEDHandler    errorLED("Error (red) indicator", &logger);
+MainsMonitor         mainsMonitor(httpServerManager, &logger);
+AHT10Monitor         aht10Monitor(httpServerManager, &logger);
 
 void setup() {
   // Conditional compilation for pin configuration
@@ -61,7 +38,7 @@ void setup() {
     errorLED.begin(ERROR_INDICATOR);// This will set _pin inside LEDHandler and pinMode(ERROR_INDICATOR, OUTPUT); 
     errorLED.off();
   #endif
-  // Assign a lambda function to a variable
+  // Assign a lambda function to variable "reportStep"
   auto reportStep = [&](int step){
     if(step==0) { normalLED.setMode(NONE); errorLED.setMode(NONE);}
     if(step==1 || step==3)       normalLED.on();
@@ -73,10 +50,11 @@ void setup() {
       else errorLED.setMode(BLINKONCE);      
     }             
   };
-
+  // Use the lambda function assinged to variable "reportStep" as a function hook in the following objects:
   wifiManager.addReportStepHook(reportStep);
   mainsMonitor.addReportStepHook(reportStep);
   otaManager.addReportStepHook(reportStep);
+  mqttManager.addReportStepHook(reportStep);
 
   mainsMonitor.addReportMetricsHook([&](mainsMetrics& metrics){
     mqttManager.publish("voltage", String(metrics.voltage, 0).c_str());
@@ -90,15 +68,12 @@ void setup() {
     mqttManager.publish("temperature", String(metrics.temperature, 2).c_str());
     mqttManager.publish("humidity", String(metrics.humidity, 2).c_str());    
   }); 
-  //wifiManager.setLEDs(&normalLED, &errorLED);
-  //mainsMonitor.setLEDs(&normalLED, &errorLED);
-
+ 
   Serial.begin(115200);
   logger.begin();
   logger.log("Start\n");
 
-  defaultManager.loadConfig();
-  wifiManager.setAPcredentials(defaultManager.getValue("wifiAP.APssid", "Energy_Monitor_IoT"), defaultManager.getValue("wifiAP.APpassword", ""));
+
  
 
   if (!configManager.loadConfig()) {
@@ -106,39 +81,35 @@ void setup() {
     configManager.resetConfig();
     errorLED.setMode(BLINKONCE); 
   }
+  wifiManager.setSSID(configManager.getValue("wifi.ssid", ""));
+  wifiManager.setPassword(configManager.getValue("wifi.password", ""));
+  wifiManager.setHostname(configManager.getValue("wifi.hostname", ""));
+  wifiManager.setTimeServer(configManager.getValue("time.server", "pool.ntp.org"));
+  wifiManager.setTimeZone(configManager.getValue("time.zone", ""));
+  
+  defaultManager.loadConfig();
+  wifiManager.setAPSSID(configManager.getValue("wifiAP.ssid", "Energy_Monitor_IoT"));
+  wifiManager.setAPPassword(configManager.getValue("wifiAP.password", ""));
 
-  operationMode=NORMAL;
-  if(!wifiManager.firstConnectToAP()) { // switch mode 
-    operationMode=SETTINGS;;   
-  }
-  else { // Connected to WIFI, do DateTime 
-    DateTime.setServer("pool.ntp.org");
-    DateTime.setTimeZone("EET-2EEST,M3.5.0/3,M10.5.0/4"); // TZ_Europe_Athens from here https://github.com/esp8266/Arduino/blob/master/cores/esp8266/TZ.h
-    DateTime.begin();
-    if (!DateTime.isTimeValid()) {
-      logger.log("Failed to get time from server.\n");
-    } else {
-      logger.logf("Date Now is %s\n", DateTime.toISOString().c_str());
-      logger.logf("Date Now is %s\n", "Timestamp is %ld\n", DateTime.now());
-    }
-  }
+  mqttManager.setTopic(configManager.getValue("wifi.hostname", ""));
+  mqttManager.setServer(configManager.getValue("mqtt.broker", ""));
+  mqttManager.setPort(configManager.getValue("mqtt.port", 1883));
+  mqttManager.setClientId(configManager.getValue("mqtt.clientId", "Test_1"));
+  mqttManager.setUsername(configManager.getValue("mqtt.username", ""));
+  mqttManager.setPassword(configManager.getValue("mqtt.password", ""));
 
   configManager.begin();  // i.e., registerEndpoints()
   defaultManager.begin(); // i.e., registerEndpoints()
-  wifiManager.begin();    // i.e., registerEndpoints()
+  wifiManager.begin();    // i.e.: try to connect to defined (in config.json) AP, if successfull then set current datetime, registerEndpoints()
   otaManager.begin();     // i.e., registerEndpoints()
   httpServerManager.begin();
   mqttManager.begin();
 
-  mainsMonitor.begin(configManager.getValue("http.entryPointUrl", ""), configManager.getValue("wifi.hostname", ""));
+  mainsMonitor.begin(configManager.getValue("http.entryPointUrl", ""), configManager.getValue("wifi.hostname", ""), configManager.getValue("device.periodicity", 10000));
   aht10Monitor.begin();
 
   normalLED.setMode(BLINKONCE);
 
-
-  // Initialize I2C with custom pins
-  
-  //myAHT10.begin(SDA_PIN, SCL_PIN);
 }
 
 void loop() {
@@ -147,32 +118,14 @@ void loop() {
   normalLED.loop();
   errorLED.loop();
 
-  currentTime = millis();
-  
-  if(operationMode==SETTINGS && currentTime - lastTimeWifiCheck > 30000) {
-    lastTimeWifiCheck = currentTime;
-    if(wifiManager.reConnectoAP()){
-      wifiManager.reboot();
-    }
-  }
+  wifiManager.loop();
 
-  if(operationMode==NORMAL && !wifiManager.reConnectoAP()) { // switch mode
-    operationMode=SETTINGS;
-    errorLED.setMode(BLINK); 
-  }
-  
-  if(operationMode==SETTINGS){
-    wifiManager.createAP();
-  }
-
-  httpServerManager.handleClient();
+  httpServerManager.loop();
 
   mqttManager.loop();
 
   mainsMonitor.loop();
 
   aht10Monitor.loop();
-
-
 }
 
