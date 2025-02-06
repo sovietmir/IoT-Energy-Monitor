@@ -48,8 +48,8 @@ mainsMetrics MainsMonitor::read(){
     toret.time = Logger::timeToString();
     
     int i=0;
-    while(_pzem.readAddress()==0 || i++<3){
-        delay(10);
+    while(_pzem.readAddress()==0 || i++<10){
+        delay(50);
     }
     //logger.logf("Custom Address: %s\n", String(pzem.readAddress(), HEX));
     //delay(10);
