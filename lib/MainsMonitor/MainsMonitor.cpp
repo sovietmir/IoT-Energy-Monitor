@@ -104,7 +104,7 @@ void MainsMonitor::logMetrics(mainsMetrics& metrics){
 }
 
 bool MainsMonitor::makeHTTPGETRequest(mainsMetrics& metrics){
-    if (_URL[0] != '\0') {
+    if (_URL[0] == '\0') {
         return false;
     }
     bool toret = true;
