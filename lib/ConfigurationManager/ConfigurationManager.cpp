@@ -1,8 +1,7 @@
 #include "ConfigurationManager.h"
 
-ConfigurationManager::ConfigurationManager(const char* configFilePath, const char* prefix, HTTPServerManager& serverManager, Logger& logger)
-        : _configFilePath(configFilePath), 
-          _prefix(prefix),
+ConfigurationManager::ConfigurationManager(const char* name, HTTPServerManager& serverManager, Logger* logger)
+        : _name(name), 
           _serverManager(serverManager),
           _logger(logger) 
           {}
@@ -12,7 +11,7 @@ bool ConfigurationManager::loadConfig() {
         return false;
     }
 
-    File configFile = LittleFS.open(_configFilePath, "r");
+    File configFile = LittleFS.open("/"+String(_name)+".json", "r");
     if (!configFile) {
         return false;
     }
@@ -24,7 +23,7 @@ bool ConfigurationManager::loadConfig() {
 }
 
 bool ConfigurationManager::saveConfig() {
-    File configFile = LittleFS.open(_configFilePath, "w");
+    File configFile = LittleFS.open("/"+String(_name)+".json", "w");
     if (!configFile) {
         return false;
     }
@@ -96,10 +95,10 @@ void ConfigurationManager::begin() {
 void ConfigurationManager::registerEndpoints() {
     // Register configuration backend calls handling
 
-    _serverManager.registerPage("/api/"+String(_prefix)+"/read", HTTP_GET, [this](ESP8266WebServer& server) { handleGetCurrentConfig(server); });
+    _serverManager.registerPage("/api/"+String(_name)+"/read", HTTP_GET, [this](ESP8266WebServer& server) { handleGetCurrentConfig(server); });
 
     // Handle POST request for configurations
-    _serverManager.registerPage("/api/"+String(_prefix)+"/save", HTTP_POST, [this](ESP8266WebServer& server) { handleConfigPost(server); });
+    _serverManager.registerPage("/api/"+String(_name)+"/save", HTTP_POST, [this](ESP8266WebServer& server) { handleConfigPost(server); });
 }
 
 void ConfigurationManager::handleGetCurrentConfig(ESP8266WebServer& server) {
@@ -120,7 +119,7 @@ void ConfigurationManager::handleConfigPost(ESP8266WebServer& server) {
     //serializeJsonPretty(json, output);
 
     // Print the pretty JSON string
-    _logger.log(json+"\n");
+    if (_logger != nullptr) _logger->log(json+"\n");
     JsonDocument newConfig;
     DeserializationError error = deserializeJson(newConfig, json);
     if(error) {
@@ -135,7 +134,7 @@ void ConfigurationManager::handleConfigPost(ESP8266WebServer& server) {
     }
 
     server.send(200, "application/json", "{\"status\": \"ok\", \"message\":\"Configuration saved successfully\"}");
-    _logger.log("Configuration updated via HTTP POST.\n");
+    if (_logger != nullptr) _logger->log("Configuration updated via HTTP POST.\n");
 }
 
 
