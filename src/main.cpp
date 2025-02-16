@@ -19,8 +19,8 @@ WiFiManager          wifiManager(httpServerManager, &logger);
 OTA                  otaManager(httpServerManager, &logger);
 MqttManager          mqttManager(&logger);
 
-ConfigurationManager configManager("/config.json",  "conf", httpServerManager, logger);
-ConfigurationManager defaultManager("/default.json","dflt", httpServerManager, logger);
+ConfigurationManager configManager("config", httpServerManager, &logger);
+ConfigurationManager defaultManager("default", httpServerManager, &logger);
 
 
 static LEDHandler    normalLED("Normal (green) indicator", &logger);
