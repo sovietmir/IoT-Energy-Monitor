@@ -11,6 +11,7 @@ void WiFiManager::begin() {
   // Configure Network Time Protocol
   //  ex. _timeZone = "EET-2EEST,M3.5.0/3,M10.5.0/4" which is TZ_Europe_Athens
   //  ex. _timeServer = "pool.ntp.org"
+  // configTime() is core ESP8266-specific function
   configTime(_timeZone, _timeServer); 
 
   if(!firstConnectToAP()) { // switch mode 
