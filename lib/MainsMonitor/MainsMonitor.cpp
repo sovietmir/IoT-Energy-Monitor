@@ -15,8 +15,8 @@ void MainsMonitor::begin(const char* URL, const char* deviceName, int periodicit
     _deviceName = deviceName;
     _periodicity = periodicity;
     if (_logger != nullptr) {
-        _logger->logf("URL: %s\n", _URL);
-        _logger->logf("deviceName: %s\n", _deviceName);
+        _logger->logf("MainsMonitor.begin() URL: %s\n", _URL);
+        _logger->logf("MainsMonitor.begin() deviceName: %s\n", _deviceName);
     }
     registerEndpoints();
 }
@@ -48,10 +48,11 @@ mainsMetrics MainsMonitor::read(){
     toret.time = Logger::timeToString();
     
     int i=0;
-    while(_pzem.readAddress()==0 || i++<10){
+    while(_pzem.readAddress()==0 && i++<5){
+        if (_logger != nullptr) _logger->logf("MainsMonitor.read() waiting for PZEM's address...\n");
         delay(50);
     }
-    //logger.logf("Custom Address: %s\n", String(pzem.readAddress(), HEX));
+    //if (_logger != nullptr) _logger->logf("Custom Address: %s\n", String(_pzem.readAddress(), HEX));
     //delay(10);
 
     toret.voltage =     _pzem.voltage();
