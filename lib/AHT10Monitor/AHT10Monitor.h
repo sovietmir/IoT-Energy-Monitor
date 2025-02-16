@@ -28,6 +28,10 @@ struct aht10Metrics {
 /**
  * @class AHT10Monitor
  * @brief Class to monitor temperature and humidity using the AHT10 sensor.
+ * 
+ * This class provides methods to interact with sensor AHT10. It supports periodic 
+ * reading data from the sensor, thus monitoring it, as well as handling HTTP API calls 
+ * for retriving last data read amd setting the periodicity of readings.
  */
 class AHT10Monitor {
 public:
