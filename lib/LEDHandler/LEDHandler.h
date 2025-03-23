@@ -9,7 +9,7 @@
 #define LED_HANDLER_H
 
 #include "common.h"
-#include "Logger.h"
+#include <IoTesp8266Framework.h> ///< Only Logger/Logger.h is used 
 
 /**
  * @enum LEDMode

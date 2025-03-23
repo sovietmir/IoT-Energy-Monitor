@@ -1,12 +1,6 @@
 #include <Arduino.h>
 #include "common.h"
-#include "ConfigurationManager.h"
-#include "ConsoleLogger.h"
-#include "TelnetLogger.h"
-#include "WiFiManager.h"
-#include "HTTPServerManager.h"
-#include "OTA.h"
-#include "MqttManager.h"
+#include <IoTesp8266Framework.h>
 
 #include "LEDHandler.h"
 #include "MainsMonitor.h"
@@ -91,7 +85,7 @@ void setup() {
   wifiManager.setAPSSID(configManager.getValue("wifiAP.ssid", "Energy_Monitor_IoT"));
   wifiManager.setAPPassword(configManager.getValue("wifiAP.password", ""));
 
-  mqttManager.setTopic(configManager.getValue("wifi.hostname", ""));
+  mqttManager.setTopicPrefix(IoTclassName, configManager.getValue("wifi.hostname", ""));
   mqttManager.setServer(configManager.getValue("mqtt.broker", ""));
   mqttManager.setPort(configManager.getValue("mqtt.port", 1883));
   mqttManager.setClientId(configManager.getValue("mqtt.clientId", "Test_1"));

@@ -3,8 +3,7 @@
 
 #include <PZEM004Tv30.h>
 #include "common.h"
-#include "HTTPServerManager.h"
-#include "Logger.h"
+#include <IoTesp8266Framework.h> ///< Only HTTPServerManager/HTTPServerManager.h and Logger/Logger.h are used 
 #include <ArduinoJson.h>
 #include <vector>
 
