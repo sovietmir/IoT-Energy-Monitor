@@ -1,0 +1,379 @@
+{
+	\tikzstyle{branch}=[fill,shape=circle,minimum size=2pt,inner sep=0pt]
+	
+	\makeatletter
+	
+	\pgfdeclareshape{Esp8266}{
+		\saveddimen{\halfwidth}{\pgfmathsetlength{\pgf@x}{15mm}} % half of width (15mm)
+		\saveddimen{\halfheight}{\pgfmathsetlength{\pgf@x}{19mm}}  % half of height (5mm)
+		
+		\anchor{center}{\pgfpointorigin} % within the node, (0,0) is the center
+		\anchor{text} % this is used to center the text in the node
+		{  \pgfpoint{-.5\wd\pgfnodeparttextbox}{-.5\ht\pgfnodeparttextbox}  }
+		
+		\savedanchor\pina{\pgfpoint{-15.5mm}{-19mm}} 
+		\anchor{vcc}{\pina}
+		\savedanchor\pinb{\pgfpoint{15.5mm}{-19mm}}
+		\anchor{gnd}{\pinb}
+		
+		\savedanchor\pinc{\pgfpoint{15.5mm}{16mm}}
+		\anchor{txd}{\pinc}
+		\savedanchor\pind{\pgfpoint{15.5mm}{11mm}}
+		\anchor{rxd}{\pind}
+		\savedanchor\pine{\pgfpoint{15.5mm}{6mm}}
+		\anchor{gpio05}{\pine}
+		\savedanchor\pinf{\pgfpoint{15.5mm}{1mm}}
+		\anchor{gpio04}{\pinf}
+		\savedanchor\ping{\pgfpoint{15.5mm}{-4mm}}
+		\anchor{gpio00}{\ping}
+		\savedanchor\pinh{\pgfpoint{15.5mm}{-9mm}}
+		\anchor{gpio02}{\pinh}
+		\savedanchor\pini{\pgfpoint{15.5mm}{-14mm}}
+		\anchor{gpio15}{\pini}
+		
+		\savedanchor\pinj{\pgfpoint{-15.5mm}{16mm}}
+		\anchor{reset}{\pinj}
+		\savedanchor\pink{\pgfpoint{-15.5mm}{11mm}}
+		\anchor{adc}{\pink}
+		\savedanchor\pinl{\pgfpoint{-15.5mm}{6mm}}
+		\anchor{ch}{\pinl}
+		\savedanchor\pinm{\pgfpoint{-15.5mm}{1mm}}
+		\anchor{gpio16}{\pinm}
+		\savedanchor\pinn{\pgfpoint{-15.5mm}{-4mm}}
+		\anchor{gpio14}{\pinn}
+		\savedanchor\pino{\pgfpoint{-15.5mm}{-9mm}}
+		\anchor{gpio12}{\pino}
+		\savedanchor\pinp{\pgfpoint{-15.5mm}{-14mm}}
+		\anchor{gpio13}{\pinp}
+		
+		% --- Automatically generated compass anchors ---
+		\anchor{north}      {\pgfpoint{0pt}{\halfheight}}          % Top center
+		\anchor{south}      {\pgfpoint{0pt}{-\halfheight}}         % Bottom center
+		\anchor{east}       {\pgfpoint{\halfwidth}{0pt}}           % Right center
+		\anchor{west}       {\pgfpoint{-\halfwidth}{0pt}}          % Left center
+		\anchor{north east} {\pgfpoint{\halfwidth}{\halfheight}}   % Top right
+		\anchor{north west} {\pgfpoint{-\halfwidth}{\halfheight}}  % Top left
+		\anchor{south east} {\pgfpoint{\halfwidth}{-\halfheight}}  % Bottom right
+		\anchor{south west} {\pgfpoint{-\halfwidth}{-\halfheight}} % Bottom left
+		
+		\foregroundpath{ % border and pin numbers are drawn here
+			\pgfsetlinewidth{0.5mm}
+			\pgfpathrectanglecorners{\pgfpoint{-15mm}{20mm}}{\pgfpoint{15mm}{-21mm}}
+			
+			\pgfusepath{draw} %draw rectangle
+			\pgftext[left, at={\pgfpoint{-14mm}{-19mm}}]{\tiny {VCC}}
+			\pgftext[right,at={\pgfpoint{14mm}{-19mm}}]{\tiny {GND}}
+			
+			\pgftext[right, at={\pgfpoint{14mm}{16mm}}]{\tiny {TXD}}
+			\pgftext[right, at={\pgfpoint{14mm}{11mm}}]{\tiny {RXD}}
+			\pgftext[right, at={\pgfpoint{14mm}{6mm}}]{\tiny {GPIO05}}
+			\pgftext[right, at={\pgfpoint{14mm}{1mm}}]{\tiny {GPIO04}}
+			\pgftext[right, at={\pgfpoint{14mm}{-4mm}}]{\tiny {GPIO00}}
+			\pgftext[right, at={\pgfpoint{14mm}{-9mm}}]{\tiny {GPIO02}}
+			\pgftext[right, at={\pgfpoint{14mm}{-14mm}}]{\tiny {GPIO15}}
+			
+			\pgftext[left, at={\pgfpoint{-14mm}{16mm}}]{\tiny {REST}}
+			\pgftext[left, at={\pgfpoint{-14mm}{11mm}}]{\tiny {ADC}}
+			\pgftext[left, at={\pgfpoint{-14mm}{6mm}}]{\tiny {CH\_PD}}
+			\pgftext[left, at={\pgfpoint{-14mm}{1mm}}]{\tiny {GPIO16}}
+			\pgftext[left, at={\pgfpoint{-14mm}{-4mm}}]{\tiny {GPIO14}}
+			\pgftext[left, at={\pgfpoint{-14mm}{-9mm}}]{\tiny {GPIO12}}
+			\pgftext[left, at={\pgfpoint{-14mm}{-14mm}}]{\tiny {GPIO13}}
+		}
+		\behindbackgroundpath{ %
+			\path[draw, red, line width=0.5mm]   (-16mm, -19mm) -- (-15mm, -19mm);
+			\path[draw, black, line width=0.5mm] ( 16mm, -19mm) -- ( 15mm, -19mm);
+			\foreach \y in {16, 11, 6, 1, -4, -9, -14} {
+				\foreach \x in {-15, 16} {
+					\path[draw, black, line width=0.5mm](\x*1mm, \y*1mm) -- (\x*1mm - 1mm, \y*1mm);
+				}
+			}		
+		}
+	}
+	
+	\pgfdeclareshape{I2C}{
+		% Save dimensions for automatic anchor calculations
+		\saveddimen{\halfwidth}{\pgfmathsetlength{\pgf@x}{10mm}} % half of width (15mm)
+		\saveddimen{\halfheight}{\pgfmathsetlength{\pgf@x}{10mm}}  % half of height (5mm)
+		
+		\anchor{center}{\pgfpointorigin} % within the node, (0,0) is the center
+		\anchor{text} % this is used to center the text in the node
+		{  \pgfpoint{-.48\wd\pgfnodeparttextbox}{.2\ht\pgfnodeparttextbox}  }
+		
+		\savedanchor\pina{\pgfpoint{-10.5mm}{7.25mm}} 
+		\anchor{vcc}{\pina}
+		\savedanchor\pinb{\pgfpoint{-10.5mm}{2.25mm}}
+		\anchor{sda}{\pinb}
+		\savedanchor\pinc{\pgfpoint{-10.5mm}{-2.25mm}}
+		\anchor{scl}{\pinc}
+		\savedanchor\pind{\pgfpoint{-10.5mm}{-7.25mm}}
+		\anchor{gnd}{\pind}
+		
+		% --- Automatically generated compass anchors ---
+		\anchor{north}      {\pgfpoint{0pt}{\halfheight}}          % Top center
+		\anchor{south}      {\pgfpoint{0pt}{-\halfheight}}         % Bottom center
+		\anchor{east}       {\pgfpoint{\halfwidth}{0pt}}           % Right center
+		\anchor{west}       {\pgfpoint{-\halfwidth}{0pt}}          % Left center
+		\anchor{north east} {\pgfpoint{\halfwidth}{\halfheight}}   % Top right
+		\anchor{north west} {\pgfpoint{-\halfwidth}{\halfheight}}  % Top left
+		\anchor{south east} {\pgfpoint{\halfwidth}{-\halfheight}}  % Bottom right
+		\anchor{south west} {\pgfpoint{-\halfwidth}{-\halfheight}} % Bottom left
+		\foregroundpath{ % border and pin numbers are drawn here
+			\pgfsetlinewidth{0.5mm}
+			\pgfpathrectanglecorners{\pgfpoint{-10mm}{10mm}}{\pgfpoint{10mm}{-10mm}}
+			
+			\pgfusepath{draw} %draw rectangle
+			\pgftext[left,at={\pgfpoint{-9mm}{7.25mm}}]{\tiny VCC}
+			\pgftext[left,at={\pgfpoint{-9mm}{2.25mm}}]{\tiny SDA}
+			\pgftext[left,at={\pgfpoint{-9mm}{-2.25mm}}]{\tiny SCL}
+			\pgftext[left,at={\pgfpoint{-9mm}{-7.25mm}}]{\tiny GND}
+		}
+		\behindbackgroundpath{ %
+			\path[draw, red, line width=0.5mm]  (-10mm, 7.25mm) -- (-11mm, 7.25mm);
+			\path[draw, black, line width=0.5mm](-10mm, 2.25mm) -- (-11mm, 2.25mm);
+			\path[draw, black, line width=0.5mm](-10mm, -2.25mm)-- (-11mm, -2.25mm);
+			\path[draw, black, line width=0.5mm](-10mm, -7.25mm)-- (-11mm, -7.25mm);
+		}
+	}
+	
+	\pgfdeclareshape{PZEM}{
+		% Save dimensions for automatic anchor calculations
+		\saveddimen{\halfwidth}{\pgfmathsetlength{\pgf@x}{15mm}} % half of width (15mm)
+		\saveddimen{\halfheight}{\pgfmathsetlength{\pgf@x}{10mm}}  % half of height (5mm)
+		
+		\anchor{center}{\pgfpointorigin} % within the node, (0,0) is the center
+		\anchor{text} % this is used to center the text in the node
+		{  \pgfpoint{-.5\wd\pgfnodeparttextbox}{-.5\ht\pgfnodeparttextbox}  }
+		
+		\savedanchor\pina{\pgfpoint{15.5mm}{7.5mm}}
+		\anchor{vcc}{\pina}
+		\savedanchor\pinb{\pgfpoint{15.5mm}{2.5mm}}
+		\anchor{tx}{\pinb}
+		\savedanchor\pinc{\pgfpoint{15.5mm}{-2.5mm}}
+		\anchor{rx}{\pinc}
+		\savedanchor\pind{\pgfpoint{15.5mm}{-7.5mm}}
+		\anchor{gnd}{\pind}
+		
+		\savedanchor\pine{\pgfpoint{-15.5mm}{7.5mm}}
+		\anchor{ct1}{\pine}
+		\savedanchor\pinf{\pgfpoint{-15.5mm}{2.5mm}}
+		\anchor{ct2}{\pinf}
+		\savedanchor\ping{\pgfpoint{-15.5mm}{-2.5mm}}
+		\anchor{n}{\ping}
+		\savedanchor\pinh{\pgfpoint{-15.5mm}{-7.5mm}}
+		\anchor{l}{\pinh}
+		
+		% --- Automatically generated compass anchors ---
+		\anchor{north}      {\pgfpoint{0pt}{\halfheight}}          % Top center
+		\anchor{south}      {\pgfpoint{0pt}{-\halfheight}}         % Bottom center
+		\anchor{east}       {\pgfpoint{\halfwidth}{0pt}}           % Right center
+		\anchor{west}       {\pgfpoint{-\halfwidth}{0pt}}          % Left center
+		\anchor{north east} {\pgfpoint{\halfwidth}{\halfheight}}   % Top right
+		\anchor{north west} {\pgfpoint{-\halfwidth}{\halfheight}}  % Top left
+		\anchor{south east} {\pgfpoint{\halfwidth}{-\halfheight}}  % Bottom right
+		\anchor{south west} {\pgfpoint{-\halfwidth}{-\halfheight}} % Bottom left
+		
+		\foregroundpath{ % border and pin numbers are drawn here
+			\pgfsetlinewidth{0.5mm}
+			\pgfpathrectanglecorners{\pgfpoint{-15mm}{10mm}}{\pgfpoint{15mm}{-10mm}}
+			
+			\pgfusepath{draw} %draw rectangle
+			\pgftext[right, at={\pgfpoint{14mm}{ 7.5mm}}]{\tiny {5V}}
+			\pgftext[right, at={\pgfpoint{14mm}{ 2.5mm}}]{\tiny {TX}}
+			\pgftext[right, at={\pgfpoint{14mm}{-2.5mm}}]{\tiny {RX}}
+			\pgftext[right, at={\pgfpoint{14mm}{-7.5mm}}]{\tiny {GND}}
+			
+			\pgftext[left, at={\pgfpoint{-14mm}{ 7.5mm}}]{\tiny {CT}}
+			\pgftext[left, at={\pgfpoint{-14mm}{ 2.5mm}}]{\tiny {CT}}
+			\pgftext[left, at={\pgfpoint{-14mm}{-2.5mm}}]{\tiny {N}}
+			\pgftext[left, at={\pgfpoint{-14mm}{-7.5mm}}]{\tiny {L}}
+			
+		}
+		\behindbackgroundpath{ %
+			\foreach \y in {7.5, 2.5, -2.5, -7.5} {
+				\foreach \x in {-15, 16} {
+					\path[draw, black, line width=0.5mm](\x*1mm, \y*1mm) -- (\x*1mm -1mm, \y*1mm);
+				}
+				
+			}
+			\path[draw, red, line width=0.5mm]  (15mm, 7.5mm) -- (16mm, 7.5mm);
+		}  
+	}
+	
+	\pgfdeclareshape{PowerSupply}{
+		% Save dimensions for automatic anchor calculations
+		\saveddimen{\halfwidth}{\pgfmathsetlength{\pgf@x}{15mm}} % half of width (15mm)
+		\saveddimen{\halfheight}{\pgfmathsetlength{\pgf@x}{5mm}}  % half of height (5mm)
+		
+		\anchor{center}{\pgfpointorigin} % within the node, (0,0) is the center
+		\anchor{text} % this is used to center the text in the node
+		{  \pgfpoint{-.5\wd\pgfnodeparttextbox}{-.5\ht\pgfnodeparttextbox}  }
+		
+		\savedanchor\pina{\pgfpoint{-15.5mm}{ 2.5mm}}
+		\anchor{n}{\pina}
+		\savedanchor\pinb{\pgfpoint{-15.5mm}{-2.5mm}}
+		\anchor{l}{\pinb}
+		
+		\savedanchor\pinc{\pgfpoint{15.5mm}{ 2.5mm}}
+		\anchor{vcc}{\pinc}
+		\savedanchor\pind{\pgfpoint{15.5mm}{-2.5mm}}
+		\anchor{gnd}{\pind}
+		
+		
+		% --- Automatically generated compass anchors ---
+		\anchor{north}      {\pgfpoint{0pt}{\halfheight}}          % Top center
+		\anchor{south}      {\pgfpoint{0pt}{-\halfheight}}         % Bottom center
+		\anchor{east}       {\pgfpoint{\halfwidth}{0pt}}           % Right center
+		\anchor{west}       {\pgfpoint{-\halfwidth}{0pt}}          % Left center
+		\anchor{north east} {\pgfpoint{\halfwidth}{\halfheight}}   % Top right
+		\anchor{north west} {\pgfpoint{-\halfwidth}{\halfheight}}  % Top left
+		\anchor{south east} {\pgfpoint{\halfwidth}{-\halfheight}}  % Bottom right
+		\anchor{south west} {\pgfpoint{-\halfwidth}{-\halfheight}} % Bottom left
+		
+		\foregroundpath{ % border and pin numbers are drawn here
+			\pgfsetlinewidth{0.5mm}
+			\pgfpathrectanglecorners{\pgfpoint{-15mm}{5mm}}{\pgfpoint{15mm}{-5mm}}
+			
+			\pgfusepath{draw} %draw rectangle
+			\pgftext[left, at={\pgfpoint{-14mm}{ 2.5mm}}]{\tiny {N}}
+			\pgftext[left, at={\pgfpoint{-14mm}{-2.5mm}}]{\tiny {L}}
+			
+			\pgftext[right, at={\pgfpoint{14mm}{ 2.5mm}}]{\tiny {5V}}
+			\pgftext[right, at={\pgfpoint{14mm}{-2.5mm}}]{\tiny {GND}}
+			
+		}
+		\behindbackgroundpath{ %
+			\foreach \y in { 2.5, -2.5} {
+				\foreach \x in {-15, 16} {
+					\path[draw, black, line width=0.5mm](\x*1mm, \y*1mm) -- (\x*1mm -1mm, \y*1mm);
+				}
+			}
+			\path[draw, red, line width=0.5mm]  (15mm, 2.5mm) -- (16mm, 2.5mm);
+		}  
+	}
+	
+	\pgfdeclareshape{stabilizator}{
+		% Save dimensions for automatic anchor calculations
+		\saveddimen{\halfwidth}{\pgfmathsetlength{\pgf@x}{5mm}} % half of width (15mm)
+		\saveddimen{\halfheight}{\pgfmathsetlength{\pgf@x}{5mm}}  % half of height (5mm)
+		
+		\anchor{center}{\pgfpointorigin} % within the node, (0,0) is the center
+		\anchor{text} % this is used to center the text in the node
+		{  \pgfpoint{-.5\wd\pgfnodeparttextbox}{-.2\ht\pgfnodeparttextbox}  }
+		
+		\savedanchor\pina{\pgfpoint{5.5mm}{3.5mm}} 
+		\anchor{vccIn}{\pina}
+		\savedanchor\pinb{\pgfpoint{5.5mm}{0mm}}
+		\anchor{vccOut}{\pinb}
+		\savedanchor\pinc{\pgfpoint{5.5mm}{-3.5mm}}
+		\anchor{gnd}{\pinc}
+		
+		% --- Automatically generated compass anchors ---
+		\anchor{north}      {\pgfpoint{0pt}{\halfheight}}          % Top center
+		\anchor{south}      {\pgfpoint{0pt}{-\halfheight}}         % Bottom center
+		\anchor{east}       {\pgfpoint{\halfwidth}{0pt}}           % Right center
+		\anchor{west}       {\pgfpoint{-\halfwidth}{0pt}}          % Left center
+		\anchor{north east} {\pgfpoint{\halfwidth}{\halfheight}}   % Top right
+		\anchor{north west} {\pgfpoint{-\halfwidth}{\halfheight}}  % Top left
+		\anchor{south east} {\pgfpoint{\halfwidth}{-\halfheight}}  % Bottom right
+		\anchor{south west} {\pgfpoint{-\halfwidth}{-\halfheight}} % Bottom left
+		
+		\foregroundpath{ % border and pin numbers are drawn here
+			\pgfsetlinewidth{0.5mm}
+			\pgfpathrectanglecorners{\pgfpoint{-5mm}{5mm}}{\pgfpoint{5mm}{-5mm}}
+			
+			\pgfusepath{draw} %draw rectangle
+			\pgftext[right, at={\pgfpoint{4mm}{3.5mm}}]{\tiny VCC IN}
+			\pgftext[right, at={\pgfpoint{4mm}{  0mm}}]{\tiny +$3{,}3$V}
+			\pgftext[right, at={\pgfpoint{4mm}{-3.5mm}}]{\tiny GND}
+		}
+		\behindbackgroundpath{ %
+			\path[draw, red, line width=0.5mm]  (5mm, 3.5mm) -- (6mm, 3.5mm);
+			\path[draw, red, line width=0.5mm]  (5mm,   0mm) -- (6mm,   0mm);
+			\path[draw, black, line width=0.5mm](5mm,-3.5mm) -- (6mm,-3.5mm);
+		}
+	}
+	
+	\makeatother
+	
+	\begin{tikzpicture}[circuit ee IEC, every info/.style={font=\footnotesize}]
+		
+		  
+		\node[ac source, label={[shift={(0, 0)}, font=\scriptsize]$230$ V}] at (0,0) (mains) {};
+		
+		\node[resistor, label={[shift={(0, -0.7)}, font=\scriptsize]Load}] at ($(mains) + (0, -4)$) (load) {};
+		
+		\draw[] (mains) -- ++(1,0) coordinate (mainsRight) -| ++(0, -0.2) to [iloop2, name=CT] ++(0,-1) |- (load) -| ($(mains) + (-1,0)$)  coordinate (mainsLeft) -- (mains) {};
+		
+		\node[PZEM, anchor = ct1] at ($(CT) + (1, 0.25)$) (PZEM){\footnotesize PZEM-004T};
+		\draw[] (CT.i+) |- (PZEM.ct1) (CT.i-) |- (PZEM.ct2) {};
+		\draw[] ($(mains) + (0.5,0)$) node[branch] {} |- (PZEM.n) (mainsLeft|-PZEM.l) node[branch] {} -- (PZEM.l) {};
+		
+		\node[PowerSupply, anchor = n] at ($(CT) + (1, -2.5)$) (PowerSupply){\footnotesize Power Supply};
+		\draw[] (mainsRight|-PowerSupply.n) node[branch] {} |- (PowerSupply.n) (mainsLeft|-PowerSupply.l) node[branch] {} -- (PowerSupply.l) {};
+		
+		\draw[black] (PZEM.gnd) -- ++(0.5, 0) node[rground] {};
+		\draw[black, arrows = {-Stealth[scale=1.5, reversed, color=red]}] (PZEM.vcc) -- ++(0.5, 0) node[label={[shift={(0.2, -0.3)}]\tiny $5$\,V}] {};
+		\draw[black] (PowerSupply.gnd) -- ++(0.5, 0) node[rground] {};
+		\draw[black, arrows = {-Stealth[scale=1.5, color=red]}] (PowerSupply.vcc) -- ++(0.5, 0) node[label={[shift={(0.2, -0.3)}]\tiny $5$\,V}] {};
+		
+		
+		\node[stabilizator,  anchor = north east, label={[shift={(0, 0.5cm)}, text  width=2.4cm, align=center, font=\scriptsize]Voltage stabilizer}] at ($(PowerSupply.south east) + (0, -1)$) (stabilizator){};
+		\draw[black] (stabilizator.gnd) -- ++(0.5, 0) node[rground] {};
+		\draw[black, arrows = {-Stealth[scale=1.5, reversed, color=red]}] (stabilizator.vccIn) -- ++(0.5, 0) node[label={[shift={(0.3, -0.3)}]\tiny $5$\,V}] {};
+		\draw[black, arrows = {-Stealth[scale=1.5, color=orange]}] (stabilizator.vccOut) -- ++(0.5, 0) node[label={[shift={(0.3, -0.3)}]\tiny $3.3$\,V}] {};
+		
+		
+		\node[Esp8266,  anchor = north west, label={[shift={(0, 2cm)}, font=\scriptsize]Microcontroller}] at ($(PZEM.north east) + (3, 0)$) (ESP8266-12E){\rotatebox{90}{ESP8266-12E}};
+		\node[draw, rectangle, rotate=90, inner sep=2pt] at ($(ESP8266-12E.ch) + (-0.4, .6)$)  (R1){\tiny$10$ k$\Omega$};
+		\node[draw, rectangle, inner sep=2pt] at ($(ESP8266-12E.gpio15) + (0.6,0)$) (R2){\tiny$10$ k$\Omega$};
+		\node[draw, rectangle, inner sep=2pt] at ($(ESP8266-12E.gpio16) + (-0.6,0)$) (R3){\tiny$150$ $\Omega$};
+		\node[draw, rectangle, inner sep=2pt] at ($(ESP8266-12E.gpio14) + (-0.6,0)$) (R4){\tiny$120$ $\Omega$};
+		
+		\draw[black] (ESP8266-12E.ch) -| (R1.west) {};
+		\draw[black, arrows = {-Stealth[scale=1.5, reversed, color=orange]}] (R1.east)  -- ++(0, 0.5)   node[label=above:{\tiny $3.3$\,V}] {};
+		\draw[black, arrows = {-Stealth[scale=1.5, reversed, color=orange]}] (ESP8266-12E.vcc)  -- ++(-0.5, 0)   node[label=below:{\tiny $3.3$\,V}] {};
+		
+		\draw[black] (ESP8266-12E.gpio15) -- (R2.west) (R2.east) -- ++(0.2, 0) coordinate (tmp) -- (tmp |- ESP8266-12E.gnd) -- ++(-0.6, 0) node [branch] (tmp2) {} -- (ESP8266-12E.gnd)  (tmp2) -- ++(0, -.5) node[rground] {};
+		
+		% Cordinate interpolation (using the calc library): $(A)!<fraction>!(B)$
+		%    (A): Starting coordinate (e.g., (PZEM.tx)).
+		%    <fraction>: A number between 0 and 1 (e.g., 0.5 for 50%).
+		%    (B): Ending coordinate (e.g., (ESP8266-12E.gpio12)).
+		%
+		% The general structure is: $(A)!(B)!(C)$
+		%    (A): Start point (origin of projection).
+		%    (B): Target point to project toward.
+		%    (C): Line/axis to project onto.
+		% This calculates the projection of point (B) onto the line from (A) to (C).
+		
+		\draw[black] (PZEM.tx) -- ($(PZEM.tx)!0.4!(PZEM.tx -| ESP8266-12E.gpio12) + (0.25, 0)$) |- (ESP8266-12E.gpio12) {};
+		\draw[black] (PZEM.rx) -- ($(PZEM.rx)!0.4!(PZEM.rx -| ESP8266-12E.gpio13) + (-0.25, 0)$) |- (ESP8266-12E.gpio13) {};
+		
+		
+		\draw[black] (ESP8266-12E.gpio14) -- (R4) (R4.west) -- ++(-0.2,0) -- ++(0, -2.5) to[led, diodes/scale=0.5, fill=green] ++(2, 0) -- ++(0, -0.5) node[rground] (tmp) {};
+		
+		\draw[black] (ESP8266-12E.gpio16) -- (R3) (R3.west) -- ++(-0.7,0) -- ++(0, -3.5) to[led, diodes/scale=0.5, fill=red] ++(2, 0) coordinate(tmp1) -- (tmp1-|tmp) node[branch] {};
+		
+		
+		
+		\node[I2C, anchor = north west, text width=12cm, align=center] at ($(ESP8266-12E.north east) + (2, 0)$) (AHT10){\scriptsize AHT10\\\tiny Temperature\\Humidity\\sensor};
+		
+		
+		
+		\draw[black] (AHT10.sda) -- ($(AHT10.sda)!0.5!(AHT10.sda -| ESP8266-12E.gpio05) + (-0.25, 0)$) |- (ESP8266-12E.gpio05) {};
+		\draw[black] (AHT10.scl) -- ($(AHT10.scl)!0.5!(AHT10.scl -| ESP8266-12E.gpio04) + ( 0.25, 0)$) |- (ESP8266-12E.gpio04) {};
+		
+		\draw[black] (AHT10.gnd) -- ++(-0.5, 0) node[rground] {};
+		\draw[black, arrows = {-Stealth[scale=1.5, reversed, color=red]}] (AHT10.vcc) -- ++(-0.5, 0) node[label={[shift={(-0.2, -0.3)}]\tiny $5$\,V}] {};
+		
+		
+		\draw[gray, dashed] ($(current bounding box.north west-| PZEM.west) + (.55,0)$) coordinate (tmp) -- (tmp|-current bounding box.south west) {};
+		
+		
+		%\draw[red, dashed] (current bounding box.south west) rectangle (current bounding box.north east);
+		
+	\end{tikzpicture}
+	
+}
+
