@@ -63,9 +63,8 @@ void setup() {
     mqttManager.publish("humidity", String(metrics.humidity, 2).c_str());    
   }); 
  
-  Serial.begin(115200);
-  logger.begin();
-  logger.log("Start\n");
+  logger.begin();        ///< Essential as `Serial.begin(115200);`
+  logger.log("Start\n"); 
 
 
  
