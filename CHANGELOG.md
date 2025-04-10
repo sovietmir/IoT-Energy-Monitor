@@ -1,5 +1,9 @@
 # Change Log
 
+## [1.0.2] - 2025-04-10
+### Modification
+- Improved wiring schematics, by adding some notes.
+
 ## [1.0.1] - 2025-04-09
 ### Additions
 - Added README.md.

@@ -298,12 +298,17 @@
 	
 	\begin{tikzpicture}[circuit ee IEC, every info/.style={font=\footnotesize}]
 		
-		  
-		\node[ac source, label={[shift={(0, 0)}, font=\scriptsize]$230$ V}] at (0,0) (mains) {};
+		\node[ac source, label={[shift={(0, 0)}, font=\scriptsize]$230$ V}] at (-5,10) (mains) {};
 		
 		\node[resistor, label={[shift={(0, -0.7)}, font=\scriptsize]Load}] at ($(mains) + (0, -4)$) (load) {};
 		
 		\draw[] (mains) -- ++(1,0) coordinate (mainsRight) -| ++(0, -0.2) to [iloop2, name=CT] ++(0,-1) |- (load) -| ($(mains) + (-1,0)$)  coordinate (mainsLeft) -- (mains) {};
+		
+		\draw[gray, -Stealth] ($(mainsRight) + (0.3, 0.0)$) node[label={[shift={(0.4, -0.2)}, align=center, font=\tiny] Load\\Conductor}] {} to [bend right=10] ($(mainsRight) + (0.05,-0.3)$) {};
+		
+		\draw[gray, -Stealth] ($(CT) + (-1, 0)$) node[label={[shift={(-0.3, -0.6)}, align=center, font=\tiny] Current\\Transformer}] {} to [bend right=-15] ($(CT) + (-0.3, 0.05)$) {};
+		
+		
 		
 		\node[PZEM, anchor = ct1] at ($(CT) + (1, 0.25)$) (PZEM){\footnotesize PZEM-004T};
 		\draw[] (CT.i+) |- (PZEM.ct1) (CT.i-) |- (PZEM.ct2) {};
@@ -370,6 +375,7 @@
 		
 		\draw[gray, dashed] ($(current bounding box.north west-| PZEM.west) + (.55,0)$) coordinate (tmp) -- (tmp|-current bounding box.south west) {};
 		
+		\draw[gray, -Stealth] ($(tmp|-current bounding box.south west) + (-0.5, 1)$) node[anchor=east,align=center, font=\tiny, text width=3cm] {Optocoupler isolation between high-voltage (mains) and low-voltage (microelectronics) circuits.} to [bend right=-5] ($(tmp|-current bounding box.south west) + (-0.05, 1)$) {};
 		
 		%\draw[red, dashed] (current bounding box.south west) rectangle (current bounding box.north east);
 		
