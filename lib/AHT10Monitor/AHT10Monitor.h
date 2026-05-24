@@ -3,7 +3,7 @@
 
 #include <AHT10.h>
 #include "common.h"
-#include <IoTesp8266Framework.h> ///< Only HTTPServerManager/HTTPServerManager.h and Logger/Logger.h are used 
+#include <IoTesp8266Framework.h> //< HTTPServerManager/HTTPServerManager.h, Logger/Logger.h and Sensor/Sensor.h are used 
 #include <ArduinoJson.h>
 #include <vector>
 
@@ -22,6 +22,17 @@ struct aht10Metrics {
     String time;        ///< Time of the measurement  (format: YYYY-mm-dd HH:ii:ss).
     float temperature;  ///< Temperature in degrees Celsius.
     float humidity;     ///< Humidity in percentage.
+
+    void toJson(JsonDocument& doc) const {
+        doc["time"] = time;
+        if(isValid()){
+          doc["temperature"] = temperature;
+          doc["humidity"] = humidity;
+        }
+    }
+    bool isValid() const {
+        return !isnan(temperature);
+    }
 };
 
 /**
@@ -30,9 +41,11 @@ struct aht10Metrics {
  * 
  * This class provides methods to interact with sensor AHT10. It supports periodic 
  * reading data from the sensor, thus monitoring it, as well as handling HTTP API calls 
- * for retriving last data read amd setting the periodicity of readings.
+ * for retriving last data read amd setting the periodicity of readings.  The
+ * later is done by registering paths `/api/getLastMetricsAHT10`, 
+ * `/api/getPeriodicityAHT10` and `/api/setPeriodicityAHT10`,respectfully. 
  */
-class AHT10Monitor {
+class AHT10Monitor : public Sensor<aht10Metrics>  {
 public:
     /**
      * @brief Constructor for AHT10Monitor.
@@ -44,85 +57,23 @@ public:
     /**
      * @brief Initializes the AHT10 sensor.
      */
-    void begin();
+    void begin() override;
 
-    /**
-     * @brief Registers endpoints for the HTTP server.
-     */
-    void registerEndpoints();
-
-    /**
-     * @brief Main loop to read and report metrics periodically.
-     */
-    void loop();
 
     /**
      * @brief Reads the current metrics from the AHT10 sensor.
      * @return The read metrics.
      */
-    aht10Metrics read();
+    aht10Metrics read() override;
 
     /**
      * @brief Logs the metrics to the logger.
      * @param metric The metrics to log.
      */
-    void logMetrics(aht10Metrics& metric);
-
-    /**
-     * @brief Broadcasts the metrics to all connected WebSocket clients.
-     * @param metrics The metrics to broadcast.
-     */
-    void broadcastMetrics(aht10Metrics& metrics);
-
-    /**
-     * @brief Adds a hook to be called during the report step.
-     * @param func The function to be called.
-     */
-    void addReportStepHook(std::function<void(int)> func);
-
-    /**
-     * @brief Reports the current step to all registered hooks.
-     * @param step The step to report.
-     */
-    void reportStep(int step);
-
-    /**
-     * @brief Adds a hook to be called when metrics are reported.
-     * @param func The function to be called.
-     */
-    void addReportMetricsHook(std::function<void(aht10Metrics&)> func);
-
-    /**
-     * @brief Reports the metrics to all registered hooks.
-     * @param metric The metrics to report.
-     */
-    void reportMetrics(aht10Metrics& metric);
-
-    /**
-     * @brief Handles the set periodicity request.
-     * @param server Reference to the ESP8266WebServer instance.
-     */
-    void handleSetPeriodicityRequest(ESP8266WebServer& server);
+    void logMetrics(const aht10Metrics& metric) override;
 
 private:
-    HTTPServerManager& _serverManager; ///< Reference to the HTTPServerManager instance.
-    Logger* _logger; ///< Pointer to the Logger instance.
     AHT10 _AHT10; ///< AHT10 sensor instance.
-
-    long _lastTime = 0; ///< Last time metrics were read.
-    long _periodicity = 10000; ///< Periodicity of reading metrics in milliseconds.
-
-    aht10Metrics _lastMetrics; ///< Last read metrics.
-
-    std::vector<std::function<void(int)>> _reportStepsHooks; ///< List of report step hooks.
-    std::vector<std::function<void(aht10Metrics&)>> _reportMetricsHooks; ///< List of report metrics hooks.
-
-    /**
-     * @brief Serializes the metrics to a JSON string.
-     * @param metrics The metrics to serialize.
-     * @return The serialized JSON string.
-     */
-    String serializeMetrics(const aht10Metrics& metrics);
 };
 
 #endif
