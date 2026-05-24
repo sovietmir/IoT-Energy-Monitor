@@ -51,23 +51,28 @@ void setup() {
   mqttManager.addReportStepHook(reportStep);
 
   mainsMonitor.addReportMetricsHook([&](mainsMetrics& metrics){
-    mqttManager.publish("voltage", String(metrics.voltage, 0).c_str());
-    mqttManager.publish("current", String(metrics.current, 2).c_str());
-    mqttManager.publish("power",   String(metrics.power, 2).c_str());
-    mqttManager.publish("energy",  String(metrics.energy, 3).c_str());
-    mqttManager.publish("frequency", String(metrics.frequency, 0).c_str());
-    mqttManager.publish("powerfactor", String(metrics.powerfactor, 2).c_str());
+    if(metrics.isValid()){
+      mqttManager.publish("voltage", String(metrics.voltage, 0).c_str());
+      mqttManager.publish("current", String(metrics.current, 2).c_str());
+      mqttManager.publish("power",   String(metrics.power, 2).c_str());
+      mqttManager.publish("energy",  String(metrics.energy, 3).c_str());
+      mqttManager.publish("frequency", String(metrics.frequency, 0).c_str());
+      mqttManager.publish("powerfactor", String(metrics.powerfactor, 2).c_str());
+    }
   });  
   aht10Monitor.addReportMetricsHook([&](aht10Metrics& metrics){
-    mqttManager.publish("temperature", String(metrics.temperature, 2).c_str());
-    mqttManager.publish("humidity", String(metrics.humidity, 2).c_str());    
+    if(metrics.isValid()){
+      mqttManager.publish("temperature", String(metrics.temperature, 2).c_str());
+      mqttManager.publish("humidity", String(metrics.humidity, 2).c_str());    
+    }
   }); 
  
   logger.begin();        ///< Essential as `Serial.begin(115200);`
-  logger.log("Start\n"); 
-
-
- 
+  logger.enableSystemLoggingToFS(true);
+  logger.logSizeThreshold(50*1024);
+  //logger.log("Start\n"); 
+  //logger.checkAndRotate();
+  logger.logSystem("Start");
 
   if (!configManager.loadConfig()) {
     logger.log("Failed to load configuration.\n");
@@ -102,6 +107,10 @@ void setup() {
   aht10Monitor.begin();
 
   normalLED.setMode(BLINKONCE);
+
+
+  logger.logSystem("Reset reason: %s", ESP.getResetReason().c_str());
+  logger.logSystem("Setup finished: the system has been initialized and is now entering loop operation");
 
 }
 
