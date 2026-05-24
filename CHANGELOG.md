@@ -1,4 +1,8 @@
 # Change Log
+## [1.1.0] - 2026-05-24
+Refactored the `AHT10Monitor` and `MainsMonitor` classes so that they extend the 
+`Sensor` class from the `IoTesp8266Framework` library.
+Modified `main.cpp` to set up logging to the file system.
 
 ## [1.0.2] - 2025-04-10
 ### Modification
